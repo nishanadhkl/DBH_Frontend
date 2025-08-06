@@ -1,15 +1,26 @@
 import React from "react";
-import "../styles/global.css"; // Import the CSS file
+import { Card, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 const BookCard = ({ book }) => {
-    return (
-        <div className="book-card">
-            <h3>{book.title}</h3>
-            <p><strong>Author:</strong> {book.author}</p>
-            <p><strong>Genre:</strong> {book.genre}</p>
-        </div>
-    );
+  return (
+    <Card className="book-card">
+    <Card.Img variant="top" src={`http://localhost:5000${book.image}`} />
+
+      <Card.Body>
+        <Card.Title>{book.title}</Card.Title>
+        <Card.Text>
+          <strong>Author:</strong> {book.author} <br />
+          <strong>Genre:</strong> {book.genre}
+        </Card.Text>
+
+        {/* Link to book details */}
+        <Link to={`/books/${book._id}`}>
+          <Button variant="primary">View Details</Button>
+        </Link>
+      </Card.Body>
+    </Card>
+  );
 };
 
 export default BookCard;
-

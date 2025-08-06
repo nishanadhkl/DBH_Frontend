@@ -1,0 +1,109 @@
+/* ===================== ADMIN NAVBAR ===================== */
+
+.admin-navbar {
+  background-color: #0d1b2a;
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-brand {
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.admin-menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-link {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.admin-link:hover {
+  color: #ffcc00;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+/* ===================== ADMIN DASHBOARD CONTENT ===================== */
+
+.admin-dashboard {
+  padding: 40px;
+  background-color: #f4f6f9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-heading {
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* Dashboard Cards */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+  justify-items: center;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+
+.dashboard-card {
+  max-width: 300px;
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  width: 280px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+}
+
+.dashboard-card h3 {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.dashboard-card p {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0d1b2a;
+  margin: 0;
+}

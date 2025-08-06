@@ -1,0 +1,104 @@
+/* ManageBooks.css */
+
+/* Container styling */
+.manage-books-container {
+    padding: 40px 0;
+    background-color: #f4f6f9;
+    min-height: 100vh;
+  }
+  
+  /* Section title */
+  .manage-books-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #333;
+  }
+  
+  /* Form layout spacing */
+  .book-form {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    margin-bottom: 40px;
+  }
+  
+  /* Form labels */
+  .book-form .form-label {
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  
+  /* Submit button */
+  .add-book-btn {
+    background-color: #111;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-book-btn:hover {
+    background-color: #222;
+  }
+  
+  /* Book listing heading */
+  .existing-books-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* Book card */
+  .book-card {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease-in-out;
+    height: 100%;
+  }
+  
+  .book-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Card image */
+  .book-card img {
+    height: 250px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+  }
+  
+  /* Card body */
+  .book-card .card-body {
+    padding: 15px;
+  }
+  
+  .book-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .book-card .card-text {
+    font-size: 15px;
+    color: #555;
+  }
+  
+  /* Featured badge */
+  .badge-featured {
+    background-color: #ffc107;
+    color: #111;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 12px;
+    display: inline-block;
+    margin-top: 10px;
+  }
+  

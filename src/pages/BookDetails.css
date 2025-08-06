@@ -1,0 +1,33 @@
+/* .pdf-blur-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pdf-blur-overlay {
+  position: absolute;
+  bottom: 0;
+  height: 40%;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.read-more-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+} */
