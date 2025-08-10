@@ -12,8 +12,8 @@ const Contact = () => {
 
       <div style={{ fontSize: "18px", lineHeight: "2" }}>
         <p><strong>Email:</strong> support@digitalbookhaven.com</p>
-        <p><strong>Phone:</strong> +977-9800000000</p>
-        <p><strong>Address:</strong> Panauti, Kavrepalanchok, Nepal</p>
+        <p><strong>Phone:</strong> +977-9841764128</p>
+        <p><strong>Address:</strong> Banepa, Kavrepalanchok, Nepal</p>
       </div>
 
       <p style={{ fontSize: "18px", marginTop: "20px" }}>

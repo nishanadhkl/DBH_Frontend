@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { Modal } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { Container, Form, Button, Row, Col, Card } from "react-bootstrap";
@@ -13,16 +14,23 @@ const ManageBooks = () => {
     author: "",
     genre: "",
     description: "",
+    price: "",
     featured: false,
   });
   const [imageFile, setImageFile] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
   const [previewPdfFile, setPreviewPdfFile] = useState(null);
+  // Refs for file inputs
+  const imageInputRef = useRef();
+  const pdfInputRef = useRef();
+  const previewPdfInputRef = useRef();
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [books, setBooks] = useState([]);
   const [editingBookId, setEditingBookId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bookIdToDelete, setBookIdToDelete] = useState(null);
 
-  const [imageError, setImageError] = useState(""); // Added state for image validation errors
+  const [imageError, setImageError] = useState(""); 
 
   useEffect(() => {
     fetchBooks();
@@ -40,7 +48,17 @@ const ManageBooks = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // If there is an image error, stop submission
+    // Frontend validation for required fields
+    if (!form.title.trim() || !form.author.trim() || !form.genre.trim() || !form.description.trim() || !form.price.trim()) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    if (isNaN(Number(form.price)) || Number(form.price) < 0) {
+      toast.error("Price must be a non-negative number.");
+      return;
+    }
+
     if (imageError) {
       toast.error("Please fix image issues before submitting");
       return;
@@ -51,6 +69,7 @@ const ManageBooks = () => {
     formData.append("author", form.author);
     formData.append("genre", form.genre);
     formData.append("description", form.description);
+    formData.append("price", form.price);
     formData.append("featured", form.featured);
     if (imageFile) formData.append("image", imageFile);
     if (pdfFile) formData.append("pdf", pdfFile);
@@ -78,15 +97,30 @@ const ManageBooks = () => {
         author: "",
         genre: "",
         description: "",
+        price: "",
         featured: false,
       });
       setImageFile(null);
       setPdfFile(null);
       setPreviewPdfFile(null);
       setPdfPreviewUrl(null);
+      // Clear file input values visually
+      if (imageInputRef.current) imageInputRef.current.value = "";
+      if (pdfInputRef.current) pdfInputRef.current.value = "";
+      if (previewPdfInputRef.current) previewPdfInputRef.current.value = "";
       fetchBooks();
     } catch (err) {
-      toast.error("Failed to save book");
+      let errorMsg = "Failed to save book";
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMsg = err.response.data.message;
+      } else if (err.response && err.response.data) {
+        errorMsg = JSON.stringify(err.response.data);
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      toast.error(errorMsg);
+      // Log full error for debugging
+      console.error("Book save error:", err);
     }
   };
 
@@ -96,6 +130,7 @@ const ManageBooks = () => {
       author: book.author,
       genre: book.genre,
       description: book.description,
+      price: book.price || "",
       featured: book.featured,
     });
     setEditingBookId(book._id);
@@ -103,16 +138,22 @@ const ManageBooks = () => {
   };
 
   const handleDelete = async (id) => {
-     const confirmDelete = window.confirm("Are you sure you want to delete this book?");
-  if (!confirmDelete) return;
-      try {
-        await axios.delete(`http://localhost:5000/api/books/${id}`);
-        toast.success("Book deleted successfully");
-        fetchBooks();
-      } catch (err) {
-        toast.error("Failed to delete book");
-      }
-    };
+    setBookIdToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteModal(false);
+    if (!bookIdToDelete) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/books/${bookIdToDelete}`);
+      toast.success("Book deleted successfully");
+      fetchBooks();
+    } catch (err) {
+      toast.error("Failed to delete book");
+    }
+    setBookIdToDelete(null);
+  };
 
   return (
     <div className="manage-books-container">
@@ -131,7 +172,6 @@ const ManageBooks = () => {
                   onChange={(e) =>
                     setForm({ ...form, title: e.target.value })
                   }
-                  required
                 />
               </Form.Group>
               <Form.Group className="mb-3">
@@ -142,7 +182,6 @@ const ManageBooks = () => {
                   onChange={(e) =>
                     setForm({ ...form, author: e.target.value })
                   }
-                  required
                 />
               </Form.Group>
             <Form.Group className="mb-3">
@@ -150,7 +189,6 @@ const ManageBooks = () => {
             <Form.Select
               value={form.genre}
               onChange={(e) => setForm({ ...form, genre: e.target.value })}
-              required
             >
               <option value="">Select Genre</option>
               {GENRES.map((genre) => (
@@ -159,6 +197,17 @@ const ManageBooks = () => {
                 </option>
               ))}
              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Price</Form.Label>
+              <Form.Control
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+              />
             </Form.Group>
 
             </Col>
@@ -181,6 +230,7 @@ const ManageBooks = () => {
                 <Form.Control
                   type="file"
                   accept="image/*"
+                  ref={imageInputRef}
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
@@ -190,7 +240,6 @@ const ManageBooks = () => {
                         "image/jpg",
                         "image/gif",
                       ];
-
                       // Check file type
                       if (!allowedTypes.includes(file.type)) {
                         setImageError(
@@ -199,14 +248,12 @@ const ManageBooks = () => {
                         e.target.value = "";
                         return;
                       }
-
                       // Check file size (2 MB)
                       if (file.size > 2 * 1024 * 1024) {
                         setImageError("Image size must be less than 2 MB");
                         e.target.value = "";
                         return;
                       }
-
                       setImageError("");
                       setImageFile(file);
                     }
@@ -222,6 +269,7 @@ const ManageBooks = () => {
                 <Form.Control
                   type="file"
                   accept="application/pdf"
+                  ref={pdfInputRef}
                   onChange={(e) => {
                     const file = e.target.files[0];
                     setPdfFile(file);
@@ -239,6 +287,7 @@ const ManageBooks = () => {
                 <Form.Control
                   type="file"
                   accept="application/pdf"
+                  ref={previewPdfInputRef}
                   onChange={(e) => setPreviewPdfFile(e.target.files[0])}
                 />
               </Form.Group>
@@ -318,6 +367,23 @@ const ManageBooks = () => {
           ))}
         </Row>
       </Container>
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this book?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

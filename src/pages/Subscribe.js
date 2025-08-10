@@ -1,27 +1,37 @@
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import { Container, Card, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-
 
 const Subscribe = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const bookId = params.get("bookId"); // bookId passed as a query parameter
+  const bookId = params.get("bookId");
+  const [book, setBook] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBook = async () => {
+      if (!bookId) return;
+      try {
+        const res = await fetch(`http://localhost:5000/api/books/${bookId}`);
+        const data = await res.json();
+        setBook(data);
+      } catch (err) {
+        setBook(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBook();
+  }, [bookId]);
 
   const redirectToPdf = async () => {
-    if (bookId) {
-      try {
-        const bookRes = await fetch(`http://localhost:5000/api/books/${bookId}`);
-        const bookData = await bookRes.json();
-        if (bookData && bookData.pdfPath) {
-          window.location.href = `http://localhost:5000${bookData.pdfPath}`;
-          return true;
-        }
-      } catch (err) {
-        console.error("Failed to fetch book details:", err);
-      }
+    if (book && book.pdfPath) {
+      window.location.href = `http://localhost:5000${book.pdfPath}`;
+      return true;
     }
     return false;
   };
@@ -55,20 +65,17 @@ const Subscribe = () => {
       }
 
       if (res.ok) {
-       toast.success("Subscription successful!");
-
-        // After subscription, redirect to PDF if bookId is present
-        const redirected = await redirectToPdf();
-        if (!redirected) navigate("/books");
+        toast.success("Subscription successful!");
+        setTimeout(async () => {
+          const redirected = await redirectToPdf();
+          if (!redirected) navigate("/books");
+        }, 1500); // 1.5 seconds delay for toast visibility
       } else {
-        // If user already subscribed, redirect directly to full pdf
         if (data.message && data.message.includes("Already subscribed")) {
           const redirected = await redirectToPdf();
-          if (redirected) return; // Redirected, so stop further execution
+          if (redirected) return;
         }
-
         toast.info(data.message || "Failed to subscribe");
-
       }
     } catch (error) {
       console.error("Subscription failed:", error);
@@ -76,16 +83,26 @@ const Subscribe = () => {
     }
   };
 
+  if (loading) return <p className="text-center mt-5">Loading...</p>;
+  if (!book) return <p className="text-center mt-5">Book not found.</p>;
+
   return (
     <Container className="mt-5">
       <Card className="p-4 shadow text-center">
-        <h2>Subscribe to Digital Book Haven</h2>
+        <h2>Subscribe to Read Full Book</h2>
         <p className="mt-3">
-          Unlock access to full books, premium features, and exclusive titles.
+          <strong>{book.title}</strong> by {book.author}
         </p>
-
+        <h4 className="mb-3">Price: <span className="text-success">Rs. {book.price}</span></h4>
+        <div className="text-center mb-3">
+          <img
+            src="/khalti.png"
+            alt="Khalti"
+            style={{ width: "180px", borderRadius: "8px" }}
+          />
+        </div>
         <Button variant="success" onClick={handleSubscribe} className="mt-3">
-          Subscribe for Rs. 299/month
+          Subscribe Now
         </Button>
       </Card>
     </Container>

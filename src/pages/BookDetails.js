@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Container, Card, Button, Modal } from "react-bootstrap";
+import { Container, Card, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const BookDetails = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
 
+
+  const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
+
 
   useEffect(() => {
     fetchBook();
-  }, []);
+    // eslint-disable-next-line
+  }, [id]);
 
   const fetchBook = async () => {
     try {
@@ -24,6 +27,8 @@ const BookDetails = () => {
       setBook(res.data);
     } catch (error) {
       console.error("Failed to fetch book:", error);
+      toast.error("Failed to fetch book details");
+      setBook(null);
     }
   };
 
@@ -32,11 +37,11 @@ const BookDetails = () => {
     if (!token) {
       toast.info("You are not logged in. Please log in to read the full book.");
       setTimeout(() => {
-        window.location.href = "/login";
-      }, 2000);
+        navigate("/login");
+      }, 1500); // 1.5 seconds delay for toast visibility
     } else {
-      // Always open subscription modal, no direct PDF here
-      setShowSubscriptionModal(true);
+      // Redirect to subscription page with bookId
+      navigate(`/subscribe?bookId=${id}`);
     }
   };
 
@@ -44,8 +49,8 @@ const BookDetails = () => {
     if (!userId) {
       toast.info("Please log in to rate books.");
       setTimeout(() => {
-        window.location.href = "/login";
-      }, 2000);
+        navigate("/login");
+      }, 1500);
       return;
     }
 
@@ -65,7 +70,6 @@ const BookDetails = () => {
     }
   };
 
-  const handleCloseModal = () => setShowSubscriptionModal(false);
 
   if (!book) return <p className="text-center mt-5">Loading book details...</p>;
 
@@ -150,31 +154,6 @@ const BookDetails = () => {
           </div>
         </div>
       </Card>
-
-      {/* Subscription Modal */}
-      <Modal show={showSubscriptionModal} onHide={handleCloseModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Subscribe to Read More</Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="text-center">
-          <p className="mb-4">
-            To access the full book, please subscribe to our premium plan.
-          </p>
-          <img
-            src="/khalti.png"
-            alt="Subscribe"
-            style={{ width: "100%", borderRadius: "8px" }}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" onClick={handleCloseModal}>
-            Cancel
-          </Button>
-          <Link to={`/subscribe?bookId=${id}`}>
-            <Button variant="success">Subscribe Now</Button>
-          </Link>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 };
