@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import NavigationBar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -147,124 +149,108 @@ const Register = () => {
   };
 
   return (
-    <div
-      className="d-flex justify-content-center"
-      style={{
-        backgroundColor: "#f4f6fa",
-        minHeight: "100vh",
-        paddingTop: "40px",
-      }}
-    >
-      <div className="bg-white p-5 rounded shadow" style={{ width: "400px" }}>
-        <div className="text-center" style={{ marginBottom: "20px" }}>
-          <img
-            src="/avatar.png"
-            alt="Avatar"
-            className="rounded-circle"
-            style={{
-              width: "80px",
-              height: "80px",
-              objectFit: "cover",
-              objectPosition: "center",
-              marginBottom: "8px",
-            }}
-          />
-          <h2 className="fw-bold">SIGN-UP</h2>
-        </div>
+    <div style={{ backgroundColor: "#f4f6fa", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <NavigationBar />
+      <div className="d-flex justify-content-center flex-grow-1" style={{ paddingTop: "40px", paddingBottom: "40px" }}>
+        <div className="bg-white p-5 rounded shadow" style={{ width: "400px" }}>
+          <div className="text-center" style={{ marginBottom: "20px" }}>
+            <img
+              src="/avatar.png"
+              alt="Avatar"
+              className="rounded-circle"
+              style={{
+                width: "80px",
+                height: "80px",
+                objectFit: "cover",
+                objectPosition: "center",
+                marginBottom: "8px",
+              }}
+            />
+            <h2 className="fw-bold">SIGN-UP</h2>
+          </div>
 
-        {error && <p className="text-danger text-center">{error}</p>}
+          {error && <p className="text-danger text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit}>
-          {Object.entries(fields).map(([key, label]) => (
-            <div className="mb-3" key={key}>
-              <div className="form-floating position-relative">
-                <input
-                  type={
-                    key.toLowerCase().includes("password")
-                      ? key === "password"
-                        ? showPassword
+          <form onSubmit={handleSubmit}>
+            {Object.entries(fields).map(([key, label]) => (
+              <div className="mb-3" key={key}>
+                <div className="form-floating position-relative">
+                  <input
+                    type={
+                      key.toLowerCase().includes("password")
+                        ? key === "password"
+                          ? showPassword
+                            ? "text"
+                            : "password"
+                          : showConfirmPassword
                           ? "text"
                           : "password"
-                        : showConfirmPassword
-                        ? "text"
-                        : "password"
-                      : key === "email"
-                      ? "email"
-                      : "text"
-                  }
-                  className="form-control"
-                  id={key}
-                  name={key}
-                  placeholder={label}
-                  value={formData[key]}
-                  onChange={handleChange}
-                />
-                <label htmlFor={key}>{label}</label>
-
-                {/* Eye icon for password fields */}
-                {key === "password" && (
-                  <span
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{
-                      position: "absolute",
-                      right: "15px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                      color: "#666",
-                    }}
-                  >
-                    {showPassword ? "🙈" : "👁"}
-                  </span>
-                )}
-                {key === "confirmPassword" && (
-                  <span
-                    onClick={() =>
-                      setShowConfirmPassword(!showConfirmPassword)
+                        : key === "email"
+                        ? "email"
+                        : "text"
                     }
-                    style={{
-                      position: "absolute",
-                      right: "15px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                      color: "#666",
-                    }}
-                  >
-                    {showConfirmPassword ? "🙈" : "👁"}
-                  </span>
+                    className="form-control"
+                    id={key}
+                    name={key}
+                    placeholder={label}
+                    value={formData[key]}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor={key}>{label}</label>
+
+                  {/* Eye icon for password fields */}
+                  {key === "password" && (
+                    <span
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: "absolute",
+                        right: "15px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        cursor: "pointer",
+                        fontSize: "18px",
+                        color: "#666",
+                      }}
+                    >
+                      {showPassword ? "🙈" : "👁"}
+                    </span>
+                  )}
+                  {key === "confirmPassword" && (
+                    <span
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      style={{
+                        position: "absolute",
+                        right: "15px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        cursor: "pointer",
+                        fontSize: "18px",
+                        color: "#666",
+                      }}
+                    >
+                      {showConfirmPassword ? "🙈" : "👁"}
+                    </span>
+                  )}
+                </div>
+                {errors[key] && (
+                  <small className="text-danger">{errors[key]}</small>
                 )}
               </div>
-              {errors[key] && (
-                <small className="text-danger">{errors[key]}</small>
-              )}
-            </div>
-          ))}
+            ))}
 
-          <button
-            type="submit"
-            className="btn w-100 rounded-pill fw-bold"
-            style={{ backgroundColor: "#0d1b2a", color: "white" }}
-          >
-            Sign Up
-          </button>
-        </form>
-
-        <div className="text-center mt-3">
-          <p className="mb-1">
-            Already have an account?
-            <Link
-              to="/login"
-              className="text-primary"
-              style={{ textDecoration: "none" }}
+            <button
+              type="submit"
+              className="btn w-100 rounded-pill fw-bold"
+              style={{ backgroundColor: "#0d1b2a", color: "white" }}
             >
-              Login
-            </Link>
-          </p>
+              Sign Up
+            </button>
+          </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -5014,3 +5014,36 @@ dialog :link{
     display:none;
   }
 }
+
+/* =================== DISABLE DOWNLOAD BUTTONS =================== */
+/* Hide download/save buttons to prevent PDF downloads */
+
+#downloadButton,
+#secondaryDownload {
+  display: none !important;
+}
+
+/* Hide the download button in the secondary toolbar */
+#secondaryToolbarButtonContainer button[data-l10n-id="pdfjs-save-button"],
+#secondaryToolbarButtonContainer button[title="Save"] {
+  display: none !important;
+}
+
+/* Hide the download button in the main toolbar */
+#toolbarContainer button[data-l10n-id="pdfjs-save-button"],
+#toolbarContainer button[title="Save"] {
+  display: none !important;
+}
+
+/* Additional safety: Hide any element with download-related classes or IDs */
+.toolbarButton[title*="Download"],
+.toolbarButton[title*="Save"],
+.toolbarButton[data-l10n-id*="save"],
+.toolbarButton[data-l10n-id*="download"] {
+  display: none !important;
+}
+
+/* Hide the vertical separator that comes after the download button */
+.toolbarHorizontalGroup:has(#downloadButton) .verticalToolbarSeparator {
+  display: none !important;
+}

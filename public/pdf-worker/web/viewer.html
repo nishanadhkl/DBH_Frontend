@@ -32,8 +32,72 @@ See https://github.com/adobe-type-tools/cmap-resources
 <script src="../build/pdf.mjs" type="module"></script>
 
     <link rel="stylesheet" href="viewer.css">
+    <link rel="stylesheet" href="disable-download.css">
 
-  <script src="viewer.mjs" type="module"></script>
+    <!-- Custom script to disable download functionality -->
+    <script>
+      // Disable download functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        // Hide download buttons
+        const downloadButtons = document.querySelectorAll('#downloadButton, #secondaryDownload');
+        downloadButtons.forEach(button => {
+          button.style.display = 'none';
+        });
+
+        // Override download methods
+        if (window.PDFViewerApplication) {
+          // Override the download method
+          if (window.PDFViewerApplication.download) {
+            window.PDFViewerApplication.download = function() {
+              console.log('Download functionality has been disabled');
+              return false;
+            };
+          }
+
+          // Override the downloadOrSave method
+          if (window.PDFViewerApplication.downloadOrSave) {
+            window.PDFViewerApplication.downloadOrSave = function() {
+              console.log('Download/Save functionality has been disabled');
+              return false;
+            };
+          }
+        }
+
+        // Remove download event listeners
+        const downloadElements = document.querySelectorAll('[data-l10n-id="pdfjs-save-button"], [title*="Save"], [title*="Download"]');
+        downloadElements.forEach(element => {
+          element.style.display = 'none';
+          element.removeEventListener('click', element.onclick);
+          element.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          };
+        });
+
+        // Disable right-click context menu for download
+        document.addEventListener('contextmenu', function(e) {
+          if (e.target.closest('#downloadButton') || e.target.closest('#secondaryDownload')) {
+            e.preventDefault();
+            return false;
+          }
+        });
+      });
+
+      // Additional protection: Override download manager
+      window.addEventListener('load', function() {
+        if (window.PDFViewerApplication && window.PDFViewerApplication.downloadManager) {
+          const originalDownload = window.PDFViewerApplication.downloadManager.download;
+          window.PDFViewerApplication.downloadManager.download = function() {
+            console.log('Download manager download method disabled');
+            return false;
+          };
+        }
+      });
+    </script>
+
+    <script src="viewer.mjs" type="module"></script>
+  
   </head>
 
   <body tabindex="0">

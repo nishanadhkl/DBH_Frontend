@@ -1,0 +1,110 @@
+/* =================== DISABLE PDF DOWNLOAD FUNCTIONALITY =================== */
+/* This file contains CSS rules to prevent users from downloading PDFs */
+
+/* Hide all download/save buttons */
+#downloadButton,
+#secondaryDownload,
+button[data-l10n-id="pdfjs-save-button"],
+button[data-l10n-id="pdfjs-download-button"],
+button[title*="Save"],
+button[title*="Download"],
+.toolbarButton[title*="Save"],
+.toolbarButton[title*="Download"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Hide download buttons in secondary toolbar */
+#secondaryToolbarButtonContainer button[data-l10n-id="pdfjs-save-button"],
+#secondaryToolbarButtonContainer button[title="Save"],
+#secondaryToolbarButtonContainer button[title="Download"] {
+  display: none !important;
+}
+
+/* Hide download buttons in main toolbar */
+#toolbarContainer button[data-l10n-id="pdfjs-save-button"],
+#toolbarContainer button[title="Save"],
+#toolbarContainer button[title="Download"] {
+  display: none !important;
+}
+
+/* Hide any elements with download-related attributes */
+[data-l10n-id*="save"],
+[data-l10n-id*="download"],
+[title*="Save"],
+[title*="Download"] {
+  display: none !important;
+}
+
+/* Hide vertical separators that come after download buttons */
+.toolbarHorizontalGroup:has(#downloadButton) .verticalToolbarSeparator,
+.toolbarHorizontalGroup:has([data-l10n-id="pdfjs-save-button"]) .verticalToolbarSeparator {
+  display: none !important;
+}
+
+/* Disable right-click context menu on download buttons */
+#downloadButton,
+#secondaryDownload {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+/* Additional protection: Hide any download-related menu items */
+.menuContainer button[data-l10n-id*="save"],
+.menuContainer button[data-l10n-id*="download"],
+.menuContainer button[title*="Save"],
+.menuContainer button[title*="Download"] {
+  display: none !important;
+}
+
+/* Hide download-related tooltips */
+[title*="Save"][title*="Download"] {
+  display: none !important;
+}
+
+/* Disable keyboard shortcuts for download (Ctrl+S, etc.) */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection only in the PDF content area */
+#viewerContainer {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Hide any download-related icons */
+.toolbarButton[data-l10n-id="pdfjs-save-button"]::before,
+.toolbarButton[data-l10n-id="pdfjs-download-button"]::before {
+  display: none !important;
+}
+
+/* Additional safety: Hide any elements with download in their class names */
+[class*="download"],
+[class*="save"] {
+  display: none !important;
+}
+
+/* Disable drag and drop for PDF files */
+body {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* Hide any download progress indicators */
+.download-progress,
+.download-indicator {
+  display: none !important;
+}

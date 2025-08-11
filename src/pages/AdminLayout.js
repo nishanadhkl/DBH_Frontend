@@ -20,7 +20,7 @@ const AdminLayout = () => {
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
-        <div className="sidebar-header">📚 Admin Panel</div>
+        <div className="sidebar-header">Admin Panel</div>
         <nav className="sidebar-menu">
           <Link to="/admin" className="sidebar-link">Dashboard</Link>
           <Link to="/admin/manage-books" className="sidebar-link">Manage Books</Link>

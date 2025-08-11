@@ -11,6 +11,7 @@ const Subscribe = () => {
   const bookId = params.get("bookId");
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -20,6 +21,8 @@ const Subscribe = () => {
         const data = await res.json();
         setBook(data);
       } catch (err) {
+        console.error("Failed to fetch book:", err);
+        toast.error("Failed to load book details");
         setBook(null);
       } finally {
         setLoading(false);
@@ -30,8 +33,104 @@ const Subscribe = () => {
 
   const redirectToPdf = async () => {
     if (book && book.pdfPath) {
-      window.location.href = `http://localhost:5000${book.pdfPath}`;
-      return true;
+      try {
+        // Show a toast before redirecting
+        toast.info("Redirecting to full PDF...", { autoClose: 1000 });
+        
+        // Set a flag in localStorage to track PDF reading session
+        const sessionId = `pdf-reading-${bookId}-${localStorage.getItem("userId")}`;
+        const sessionData = {
+          bookId: bookId,
+          userId: localStorage.getItem("userId"),
+          startTime: Date.now(),
+          active: true
+        };
+        localStorage.setItem(sessionId, JSON.stringify(sessionData));
+        
+        // Small delay to show the toast
+        setTimeout(() => {
+          // Add URL parameters to disable download functionality
+          const pdfUrl = `http://localhost:5000${book.pdfPath}#toolbar=0&navpanes=0&scrollbar=0&download=0`;
+          const pdfWindow = window.open(pdfUrl, '_blank');
+          
+          if (pdfWindow) {
+            
+            // Method 1: Monitor PDF window directly
+            const checkClosed = setInterval(() => {
+              try {
+                if (pdfWindow.closed) {
+                  clearInterval(checkClosed);
+                  navigate(`/books/${bookId}?fromSubscription=true`);
+                }
+              } catch (error) {
+                clearInterval(checkClosed);
+              }
+            }, 500);
+            
+            // Method 2: Monitor page focus/blur events
+            let hasNavigated = false;
+            const handleFocus = () => {
+              if (!hasNavigated) {
+                // Check if PDF window is closed when we regain focus
+                setTimeout(() => {
+                  try {
+                    if (pdfWindow.closed) {
+                      hasNavigated = true;
+                      clearInterval(checkClosed);
+                      navigate(`/books/${bookId}?fromSubscription=true`);
+                    }
+                  } catch (error) {
+                    // PDF window check failed
+                  }
+                }, 1000);
+              }
+            };
+            
+            const handleBlur = () => {
+              // User switched away from the page
+            };
+            
+            window.addEventListener('focus', handleFocus);
+            window.addEventListener('blur', handleBlur);
+            
+            // Method 3: Monitor visibility changes
+            const handleVisibilityChange = () => {
+              if (!document.hidden && !hasNavigated) {
+                // Page became visible again, check if PDF is closed
+                setTimeout(() => {
+                  try {
+                    if (pdfWindow.closed) {
+                      hasNavigated = true;
+                      clearInterval(checkClosed);
+                      navigate(`/books/${bookId}?fromSubscription=true`);
+                    }
+                  } catch (error) {
+                    // PDF window check failed
+                  }
+                }, 1000);
+              }
+            };
+            
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            // Cleanup function
+            const cleanup = () => {
+              clearInterval(checkClosed);
+              window.removeEventListener('focus', handleFocus);
+              window.removeEventListener('blur', handleBlur);
+              document.removeEventListener('visibilitychange', handleVisibilityChange);
+            };
+            
+            // Cleanup after 10 minutes to prevent memory leaks
+            setTimeout(cleanup, 600000);
+          }
+        }, 1000);
+        
+        return true;
+      } catch (error) {
+        console.error("PDF redirect failed:", error);
+        return false;
+      }
     }
     return false;
   };
@@ -40,13 +139,23 @@ const Subscribe = () => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
 
+
+
     if (!token || !userId) {
-      alert("Please log in to subscribe.");
-      navigate("/login");
+      toast.error("Please log in to subscribe.");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
       return;
     }
 
+    if (subscribing) return; // Prevent double clicks
+    
+    setSubscribing(true);
+
     try {
+
+      
       const res = await fetch("http://localhost:5000/api/subscriptions", {
         method: "POST",
         headers: {
@@ -55,6 +164,8 @@ const Subscribe = () => {
         },
         body: JSON.stringify({ bookId }),
       });
+
+
 
       let data;
       try {
@@ -65,26 +176,63 @@ const Subscribe = () => {
       }
 
       if (res.ok) {
-        toast.success("Subscription successful!");
+        // Show success toast
+        toast.success("🎉 Subscription successful! Redirecting to full PDF...", {
+          autoClose: 1000,
+          position: "top-center"
+        });
+        
+        // Redirect to PDF after toast
         setTimeout(async () => {
           const redirected = await redirectToPdf();
-          if (!redirected) navigate("/books");
-        }, 1500); // 1.5 seconds delay for toast visibility
+          if (!redirected) {
+            toast.warning("PDF not available, redirecting to books page");
+            navigate("/books");
+          }
+        }, 2000);
       } else {
         if (data.message && data.message.includes("Already subscribed")) {
-          const redirected = await redirectToPdf();
-          if (redirected) return;
+          toast.info("You're already subscribed! Redirecting to full PDF...");
+          setTimeout(async () => {
+            const redirected = await redirectToPdf();
+            if (!redirected) navigate("/books");
+          }, 1500);
+        } else {
+          toast.error(data.message || "Failed to subscribe. Please try again.");
         }
-        toast.info(data.message || "Failed to subscribe");
       }
     } catch (error) {
       console.error("Subscription failed:", error);
-      alert("Subscription failed. Try again.");
+      toast.error("Subscription failed. Please try again.");
+    } finally {
+      setSubscribing(false);
     }
   };
 
-  if (loading) return <p className="text-center mt-5">Loading...</p>;
-  if (!book) return <p className="text-center mt-5">Book not found.</p>;
+
+
+  if (loading) return (
+    <Container className="mt-5">
+      <div className="text-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <p className="mt-3">Loading book details...</p>
+      </div>
+    </Container>
+  );
+  
+  if (!book) return (
+    <Container className="mt-5">
+      <div className="text-center">
+        <h3>Book not found</h3>
+        <p>The book you're looking for doesn't exist or has been removed.</p>
+        <Button variant="primary" onClick={() => navigate("/books")}>
+          Back to Books
+        </Button>
+      </div>
+    </Container>
+  );
 
   return (
     <Container className="mt-5">
@@ -101,9 +249,28 @@ const Subscribe = () => {
             style={{ width: "180px", borderRadius: "8px" }}
           />
         </div>
-        <Button variant="success" onClick={handleSubscribe} className="mt-3">
-          Subscribe Now
+        
+
+        
+        <Button 
+          variant="success" 
+          onClick={handleSubscribe} 
+          className="mt-3"
+          disabled={subscribing}
+          size="lg"
+        >
+          {subscribing ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Processing...
+            </>
+          ) : (
+            "Subscribe Now"
+          )}
         </Button>
+        <p className="text-muted mt-2">
+          After subscription, you'll be redirected to the full PDF automatically
+        </p>
       </Card>
     </Container>
   );
